@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: marketplace
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build: .
+    environment:
+      MARKETPLACE_POSTGRES_URL: postgres://postgres:postgres@db:5432/marketplace?sslmode=disable
+      MARKETPLACE_JWT_SECRET: super-secret-key
+      MARKETPLACE_JWT_EXPIRY_MINUTES: "60"
+      MARKETPLACE_PORT: "8080"
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  worker:
+    build: .
+    command: ["/marketplace-worker"]
+    environment:
+      REDIS_ADDR: "redis:6379"
+      # …any other env…
+    depends_on:
+      - redis
+
+volumes:
+  pgdata:
