@@ -4,29 +4,29 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMw "github.com/go-chi/chi/v5/middleware"
 
-	"github.com/yourusername/marketplace/internal/auth"
-	"github.com/yourusername/marketplace/internal/config"
-	"github.com/yourusername/marketplace/internal/middleware"
-	"github.com/yourusername/marketplace/internal/service"
-	"github.com/yourusername/marketplace/internal/store"
+	"github.com/iAmKoldyn/marketplace/internal/auth"
+	"github.com/iAmKoldyn/marketplace/internal/config"
+	imw "github.com/iAmKoldyn/marketplace/internal/middleware"
+	"github.com/iAmKoldyn/marketplace/internal/service"
+	"github.com/iAmKoldyn/marketplace/internal/store/sqlc"
 )
 
-func NewRouter(db *store.Queries, cfg *config.Config) *chi.Mux {
+func NewRouter(db *sqlc.Queries, cfg *config.Config) *chi.Mux {
 	r := chi.NewRouter()
 
 	// built-in
-	r.Use(middleware.RequestID, middleware.Logger, middleware.Recoverer, middleware.Timeout(60*time.Second))
+	r.Use(chiMw.RequestID, chiMw.Logger, chiMw.Recoverer, chiMw.Timeout(60*time.Second))
 
 	// our custom
-	r.Use(middleware.CORS())
-	r.Use(middleware.RequireJSON)
-	r.Use(middleware.RateLimit)
-	r.Use(middleware.Metrics)
+	r.Use(imw.CORS())
+	r.Use(imw.RequireJSON)
+	r.Use(imw.RateLimit)
+	r.Use(imw.Metrics)
 
 	// metrics endpoint
-	r.Handle("/metrics", middleware.MetricsHandler())
+	r.Handle("/metrics", imw.MetricsHandler())
 
 	// auth & routes…
 	jwtm := auth.NewJWTMiddleware(cfg.JWTSecret, cfg.JWTExpiry)

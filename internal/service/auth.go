@@ -5,17 +5,17 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/yourusername/marketplace/internal/auth"
-	"github.com/yourusername/marketplace/internal/store"
+	"github.com/iAmKoldyn/marketplace/internal/auth"
+	"github.com/iAmKoldyn/marketplace/internal/store/sqlc"
 )
 
 type AuthService struct {
-	store *store.Queries
+	store *sqlc.Queries
 	jwt   *auth.JWTMiddleware
 }
 
-func NewAuthService(s *store.Queries, jwt *auth.JWTMiddleware) *AuthService {
-	return &AuthService{store: s, jwt: jwt}
+func NewAuthService(s *sqlc.Queries, jwtm *auth.JWTMiddleware) *AuthService {
+	return &AuthService{store: s, jwt: jwtm}
 }
 
 func (s *AuthService) Login(ctx context.Context, username, password string) (string, error) {
@@ -26,5 +26,5 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (str
 	if err := bcrypt.CompareHashAndPassword([]byte(dbu.PasswordHash), []byte(password)); err != nil {
 		return "", err
 	}
-	return s.jwt.GenerateToken(dbu.ID, dbu.Username)
+	return s.jwt.GenerateToken(int64(dbu.ID), dbu.Username)
 }

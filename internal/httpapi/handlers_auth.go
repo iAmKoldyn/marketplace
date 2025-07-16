@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/yourusername/marketplace/internal/service"
+	"github.com/iAmKoldyn/marketplace/internal/service"
 )
 
 type loginReq struct {

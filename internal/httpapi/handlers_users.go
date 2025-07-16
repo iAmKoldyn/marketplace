@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/yourusername/marketplace/internal/service"
-	"github.com/yourusername/marketplace/internal/validation"
+	"github.com/iAmKoldyn/marketplace/internal/service"
+	"github.com/iAmKoldyn/marketplace/internal/validation"
 )
 
 type registerReq struct {

@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/yourusername/marketplace/internal/config"
-	"github.com/yourusername/marketplace/internal/httpapi"
-	"github.com/yourusername/marketplace/internal/store"
+	"github.com/iAmKoldyn/marketplace/internal/config"
+	"github.com/iAmKoldyn/marketplace/internal/httpapi"
+	"github.com/iAmKoldyn/marketplace/internal/store"
 )
 
 func main() {

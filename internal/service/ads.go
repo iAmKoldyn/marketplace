@@ -2,39 +2,42 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"math"
+	"strconv"
 
-	"github.com/yourusername/marketplace/internal/domain"
-	"github.com/yourusername/marketplace/internal/store"
+	"github.com/iAmKoldyn/marketplace/internal/domain"
+	"github.com/iAmKoldyn/marketplace/internal/store/sqlc"
 )
 
 type AdsService struct {
-	store *store.Queries
+	store *sqlc.Queries
 }
 
-func NewAdsService(s *store.Queries) *AdsService {
+func NewAdsService(s *sqlc.Queries) *AdsService {
 	return &AdsService{store: s}
 }
 
 func (s *AdsService) Create(ctx context.Context, authorID int64, title, text, imageURL string, price float64) (*domain.Ad, error) {
-	dbad, err := s.store.CreateAd(ctx, store.CreateAdParams{
-		AuthorID: authorID,
+	dbad, err := s.store.CreateAd(ctx, sqlc.CreateAdParams{
+		AuthorID: int32(authorID),
 		Title:    title,
 		Text:     text,
-		ImageURL: imageURL,
-		Price:    price,
+		ImageUrl: imageURL,
+		Price:    fmt.Sprintf("%f", price),
 	})
 	if err != nil {
 		return nil, err
 	}
+	priceFloat, _ := strconv.ParseFloat(dbad.Price, 64)
 	return &domain.Ad{
-		ID:             dbad.ID,
-		AuthorID:       dbad.AuthorID,
+		ID:             int64(dbad.ID),
+		AuthorID:       int64(dbad.AuthorID),
 		AuthorUsername: "", // filled in list
 		Title:          dbad.Title,
 		Text:           dbad.Text,
-		ImageURL:       dbad.ImageURL,
-		Price:          float64(dbad.Price),
+		ImageURL:       dbad.ImageUrl,
+		Price:          priceFloat,
 		CreatedAt:      dbad.CreatedAt,
 	}, nil
 }
@@ -50,31 +53,29 @@ func (s *AdsService) List(ctx context.Context,
 		maxPrice = math.Max(minPrice, maxPrice)
 	}
 	offset := (page - 1) * pageSize
-	var dbads []store.ListAdsByDateDescRow
-	// dispatch to correct query
-	switch sortBy + "_" + order {
-	case "date_desc":
-		dbads, _ = s.store.ListAdsByDateDesc(ctx, minPrice, maxPrice, int32(pageSize), int32(offset))
-	case "date_asc":
-		dbads, _ = s.store.ListAdsByDateAsc(ctx, minPrice, maxPrice, int32(pageSize), int32(offset))
-	case "price_desc":
-		dbads, _ = s.store.ListAdsByPriceDesc(ctx, minPrice, maxPrice, int32(pageSize), int32(offset))
-	default:
-		dbads, _ = s.store.ListAdsByPriceAsc(ctx, minPrice, maxPrice, int32(pageSize), int32(offset))
+	params := sqlc.ListAdsByDateDescParams{
+		Price:   fmt.Sprintf("%f", minPrice),
+		Price_2: fmt.Sprintf("%f", maxPrice),
+		Limit:   int32(pageSize),
+		Offset:  int32(offset),
 	}
-
+	dbads, err := s.store.ListAdsByDateDesc(ctx, params)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]domain.Ad, len(dbads))
 	for i, d := range dbads {
+		priceFloat, _ := strconv.ParseFloat(d.Price, 64)
 		out[i] = domain.Ad{
-			ID:             d.ID,
-			AuthorID:       d.AuthorID,
+			ID:             int64(d.ID),
+			AuthorID:       int64(d.AuthorID),
 			AuthorUsername: d.AuthorUsername,
 			Title:          d.Title,
 			Text:           d.Text,
-			ImageURL:       d.ImageURL,
-			Price:          float64(d.Price),
+			ImageURL:       d.ImageUrl,
+			Price:          priceFloat,
 			CreatedAt:      d.CreatedAt,
-			IsMine:         d.AuthorID == currentUserID,
+			IsMine:         int64(d.AuthorID) == currentUserID,
 		}
 	}
 	return out, nil

@@ -8,10 +8,10 @@ import (
 	"os"
 
 	"github.com/hibiken/asynq"
-	"github.com/yourusername/marketplace/internal/auth"
-	"github.com/yourusername/marketplace/internal/service"
-	"github.com/yourusername/marketplace/internal/validation"
-	"github.com/yourusername/marketplace/internal/worker"
+	"github.com/iAmKoldyn/marketplace/internal/auth"
+	"github.com/iAmKoldyn/marketplace/internal/service"
+	"github.com/iAmKoldyn/marketplace/internal/validation"
+	"github.com/iAmKoldyn/marketplace/internal/worker"
 )
 
 type createAdReq struct {

@@ -5,15 +5,15 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/yourusername/marketplace/internal/domain"
-	"github.com/yourusername/marketplace/internal/store"
+	"github.com/iAmKoldyn/marketplace/internal/domain"
+	"github.com/iAmKoldyn/marketplace/internal/store/sqlc"
 )
 
 type UserService struct {
-	store *store.Queries
+	store *sqlc.Queries
 }
 
-func NewUserService(s *store.Queries) *UserService {
+func NewUserService(s *sqlc.Queries) *UserService {
 	return &UserService{store: s}
 }
 
@@ -23,7 +23,7 @@ func (s *UserService) Register(ctx context.Context, username, password string) (
 	if err != nil {
 		return nil, err
 	}
-	dbu, err := s.store.CreateUser(ctx, store.CreateUserParams{
+	dbu, err := s.store.CreateUser(ctx, sqlc.CreateUserParams{
 		Username:     username,
 		PasswordHash: string(hash),
 	})
@@ -31,7 +31,7 @@ func (s *UserService) Register(ctx context.Context, username, password string) (
 		return nil, err
 	}
 	return &domain.User{
-		ID:        dbu.ID,
+		ID:        int64(dbu.ID),
 		Username:  dbu.Username,
 		CreatedAt: dbu.CreatedAt,
 	}, nil

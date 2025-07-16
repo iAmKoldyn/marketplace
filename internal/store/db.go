@@ -9,7 +9,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 
-	"github.com/yourusername/marketplace/internal/store/sqlc"
+	"github.com/iAmKoldyn/marketplace/internal/store/sqlc"
 )
 
 func Connect(dsn string) (*sql.DB, error) {

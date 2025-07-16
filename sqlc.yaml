@@ -1,0 +1,7 @@
+version: "1"
+packages:
+  - name: "sqlc"
+    path: "internal/store/sqlc"
+    engine: "postgresql"
+    schema: "migrations"
+    queries: "internal/store/*.sql"
